@@ -89,7 +89,7 @@ class energy_integrals_lov():
             ax.plot(self.d_l1_dz[:,0],self.origdep,label='theor. d_l1_dz')
             ax.axvline(0,ls='--')
             ax.legend(loc='best')
-            ax.set_ylim(600,0)
+            ax.set_ylim(100,0)
             # ax.set_ylim(self.origdep[-1],0)
 
         #**********************************************************
@@ -290,7 +290,7 @@ class energy_integrals_ray():
             ax.plot(self.d_b1_dz[:,0],self.origdep,label='theor. d_b1_dz')
             ax.axvline(0,ls='--')
             ax.legend(loc='best')
-            ax.set_ylim(600,0)
+            ax.set_ylim(100,0)
             # ax.set_ylim(self.origdep[-1],0)
 
         #**********************************************************
@@ -707,11 +707,11 @@ if __name__=='__main__':
             acc_from_gv[:eiobj.norms.size,i] = acc_gv
             acc_from_ee[:eiobj.norms.size,i] = acc_ee
 
-    # if single_per and len(eiobj.kmode)>1:
-    # # single period
-    #     figs_single_per(eiobj)
-    # elif not single_per:
-    # # multiple periods
-    #     figs_mult_per(eiobj)
-    #
-    # plt.show()
+    if single_per and len(eiobj.kmode)>1:
+    # single period
+        figs_single_per(eiobj)
+    elif not single_per:
+    # multiple periods
+        figs_mult_per(eiobj)
+
+    plt.show()

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 # Modules written by me
 
-# import read_surf96_io as rs96
+#import read_surf96_io as rs96
 
 ##################################################################################################################
 
@@ -37,7 +37,7 @@ def plot_mod(plotthese):
         	#ax.step(val,dep,'-',label='Medium %d' %(pn+1))
         	ax.plot(val,dep,'-') #,label='Medium %d' %(pn+1))
     #ax.set_xlim(3.5,6.5)
-    ax.set_ylim(2800,0)
+    ax.set_ylim(300,0)
     ax.set_xlabel('Vs [km/s]')
     ax.set_ylabel('Depth [km]')
     ax.xaxis.tick_top()
@@ -69,8 +69,8 @@ def plot_pdegn(mode, period, plotcontent, xname, dothis, xmin=0, xmax=0):
 		except TypeError:
 			sys.exit('Requested component does not exist')
 		#print "Max. depth is: ", dep[-1]
-	ax.set_ylim([dep[-1],0])
-	#ax.set_ylim(2000,0)
+	# ax.set_ylim([dep[-1],0])
+	ax.set_ylim(500,0)
 	figinfo = "Mode %d Period %.1f s" %(mode,period)
 	ax.set_ylabel('Depth [km]')
 	ax.grid(True,color='0.6')
@@ -91,53 +91,56 @@ def plot_pdegn(mode, period, plotcontent, xname, dothis, xmin=0, xmax=0):
 
 def plot_disp(modes, firstfig, secondfig=None):
 
-	""" Function to plot phase or group velocity dispersion, used only when this module is run
-	    as a script by itself
-	"""
-	def singlefig(thisax, plot_content, plot_name=None):
-		mplcol=['k','r','b','y']
-		if wvel=='p':
-			yappropriate='Phase Velocity [km/s]'
-		else:
-			yappropriate='Group Velocity [km/s]'
-		for pn,pt in enumerate(plot_content):
-			for i,thismode in enumerate(pt):
-				try:
-					f = [x for x,y in thismode]
-					v = [y for x,y in thismode]
-				except ValueError:
-					f = [x for x,y,z in thismode]
-					v = [y for x,y,x in thismode]
-				if len(plot_content)==1:
-					curve_name="Mode %d" %modes[i]
-					ax.plot(f,v,'-',label=curve_name)
-				else:
-					if i==0:
-						ax.plot(f,v,color=mplcol[pn],label='Medium %d' %(pn+1))
-					else:
-						ax.plot(f,v,color=mplcol[pn])
-		thisax.set_xlabel('Frequency [Hz]')
-		thisax.set_ylabel(yappropriate)
-		thisax.set_ylim([3,8])
-		#thisax.set_xlim([0,0.08])
-		#thisax.set_title('Love')
-		if not plot_name==None:
-			thisax.set_title(plot_name)
-		if plot_name=="Group Velocity" or plot_name==None:
-			thisax.legend(loc=1)
-		thisax.grid(True,color='0.6')
-	if secondfig==None:
-		ax = plt.subplot(111)
-		singlefig(ax,firstfig)
-	else:
-		for f in range(1,3):
-			ax = plt.subplot(1,2,f)
-			if f==1:
-				singlefig(ax,firstfig,'Phase Velocity')
-			if f==2:
-				singlefig(ax,secondfig,'Group Velocity')
-		plt.suptitle("Dispersion in Model", fontsize=16)
-	plt.show()
+    """ Function to plot phase or group velocity dispersion, used only when this module is run
+        as a script by itself
+    """
+    def singlefig(thisax, plot_content, plot_name=None):
+        mplcol=['k','r','b','y']
+        if wvel=='p':
+        	yappropriate='Phase Velocity [km/s]'
+        else:
+        	yappropriate='Group Velocity [km/s]'
+        for pn,pt in enumerate(plot_content):
+            for i,thismode in enumerate(pt):
+                try:
+                	f = [x for x,y in thismode]
+                	v = [y for x,y in thismode]
+                except ValueError:
+                	f = [x for x,y,z in thismode]
+                	v = [y for x,y,z in thismode]
+                per=1./np.array(f)
+                if len(plot_content)==1:
+                    curve_name="Mode %d" %modes[i]
+                    ax.plot(f,v,'-',label=curve_name)
+                    # ax.plot(per,v,'-',label=curve_name)
+                else:
+                    if i==0:
+                    	ax.plot(f,v,color=mplcol[pn],label='Medium %d' %(pn+1))
+                    else:
+                        ax.plot(f,v,color=mplcol[pn])
+        thisax.set_xlabel('Frequency [Hz]')
+        # thisax.set_xlabel('Period [s]')
+        thisax.set_ylabel(yappropriate)
+        # thisax.set_ylim([2,6])
+        # thisax.set_xlim([0,20])
+        # thisax.set_title('Love')
+        if not plot_name==None:
+        	thisax.set_title(plot_name)
+        if plot_name=="Group Velocity" or plot_name==None:
+        	thisax.legend(loc='best')
+        thisax.grid(True,color='0.6')
+    if secondfig==None:
+    	ax = plt.subplot(111)
+    	singlefig(ax,firstfig)
+    else:
+    	for f in range(1,3):
+    		ax = plt.subplot(1,2,f)
+    		if f==1:
+    			singlefig(ax,firstfig,'Phase Velocity')
+    		if f==2:
+    			singlefig(ax,secondfig,'Group Velocity')
+    	plt.suptitle("Dispersion in Model", fontsize=16)
+    plt.show()
 
 ###################################################################################################################
 
@@ -665,7 +668,7 @@ class read_disp:
         	pd_all[:len(par),col]=par
         #print len(self.deporig), len(self.depf), self.vsf
         #print pd_par, pd_all
-        self.reqdpd=pd_all[:,2]
+        self.reqdpd=pd_all[:,2] # 0,1,2 for rho, vp, vs respectively
         disp_contents.close()
         del disp_contents
 
@@ -846,7 +849,7 @@ if __name__ == '__main__':
 			m2=None
 		rdobj = read_disp(xnames,m1,m2)
 		if hasattr(rdobj,'modpd'):
-			plot_pdegn(rdobj.mnum,rdobj.psec,rdobj.modpd,'dc/dVs','show')
+			plot_pdegn(rdobj.mnum,rdobj.psec,rdobj.modpd,'dc/dm','show')
 		elif hasattr(rdobj,'modcdisp'):
 			wvel = input("Do you want to see dispersion of group (g) or phase (p) velocity or both (b) ? ")
 			if wvel=='p':
